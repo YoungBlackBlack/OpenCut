@@ -68,7 +68,9 @@ export function TimelineTrackContent({
 	);
 
 	return (
-		<button
+		<div
+			role="button"
+			tabIndex={0}
 			className={cn("size-full", hasSelectedElements && "bg-panel-accent/35")}
 			onClick={(event) => {
 				if (shouldIgnoreClick?.()) return;
@@ -79,7 +81,11 @@ export function TimelineTrackContent({
 				event.preventDefault();
 				onTrackMouseDown?.(event);
 			}}
-			type="button"
+			onKeyDown={(event) => {
+				if (event.key === "Enter" || event.key === " ") {
+					clearElementSelection();
+				}
+			}}
 		>
 			<div className="relative h-full min-w-full">
 				{track.elements.length === 0 ? (
@@ -112,6 +118,6 @@ export function TimelineTrackContent({
 					})
 				)}
 			</div>
-		</button>
+		</div>
 	);
 }
