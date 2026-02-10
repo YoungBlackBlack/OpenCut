@@ -47,6 +47,7 @@ import { useTimelineSeek } from "@/hooks/timeline/use-timeline-seek";
 import { useTimelineDragDrop } from "@/hooks/timeline/use-timeline-drag-drop";
 import { TimelineRuler } from "./timeline-ruler";
 import { TimelineBookmarksRow } from "./bookmarks";
+import { ViolationMarkers } from "./violation-markers";
 import { useTimelineStore } from "@/stores/timeline-store";
 import { useEditor } from "@/hooks/use-editor";
 import { useTimelinePlayhead } from "@/hooks/timeline/use-timeline-playhead";
@@ -370,6 +371,10 @@ export function Timeline() {
 										handleTimelineContentClick={handleRulerClick}
 										handleRulerTrackingMouseDown={handleRulerMouseDown}
 										handleRulerMouseDown={handlePlayheadRulerMouseDown}
+									/>
+									<ViolationMarkers
+										zoomLevel={zoomLevel}
+										dynamicTimelineWidth={dynamicTimelineWidth}
 									/>
 								</div>
 								<TimelinePlayhead

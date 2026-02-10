@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { type Tab, useAssetsPanelStore } from "@/stores/assets-panel-store";
 import { TabBar } from "./tabbar";
 import { Captions } from "./views/captions";
+import { DetectionView } from "./views/detection-view";
 import { MediaView } from "./views/media";
 import { SettingsView } from "./views/settings";
 import { SoundsView } from "./views/sounds";
@@ -23,6 +24,8 @@ export function AssetsPanel() {
 				Effects view coming soon...
 			</div>
 		),
+		detection: <DetectionView />,
+
 		transitions: (
 			<div className="text-muted-foreground p-4">
 				Transitions view coming soon...

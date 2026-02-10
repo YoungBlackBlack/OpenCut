@@ -11,6 +11,7 @@ import {
 	Settings01Icon,
 	SlidersHorizontalIcon,
 	ColorsIcon,
+	SecurityIcon,
 } from "@hugeicons/core-free-icons";
 import { HugeiconsIcon, type IconSvgElement } from "@hugeicons/react";
 
@@ -20,6 +21,7 @@ export const TAB_KEYS = [
 	"text",
 	"stickers",
 	"effects",
+	"detection",
 	"transitions",
 	"captions",
 	"filters",
@@ -31,9 +33,9 @@ export type Tab = (typeof TAB_KEYS)[number];
 
 const createHugeiconsIcon =
 	({ icon }: { icon: IconSvgElement }) =>
-	({ className }: { className?: string }) => (
-		<HugeiconsIcon icon={icon} className={className} />
-	);
+		({ className }: { className?: string }) => (
+			<HugeiconsIcon icon={icon} className={className} />
+		);
 
 export const tabs = {
 	media: {
@@ -55,6 +57,10 @@ export const tabs = {
 	effects: {
 		icon: createHugeiconsIcon({ icon: MagicWand05Icon }),
 		label: "Effects",
+	},
+	detection: {
+		icon: createHugeiconsIcon({ icon: SecurityIcon }),
+		label: "Detection",
 	},
 	transitions: {
 		icon: createHugeiconsIcon({ icon: ArrowRightDoubleIcon }),
