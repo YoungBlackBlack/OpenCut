@@ -19,26 +19,20 @@ export function DetectionView() {
         useDetectionStore();
 
     const handleDetect = useCallback(() => {
-        // Get the video path from the current project's media assets
+        // Get the video File from the current project's media assets
         const editor = EditorCore.getInstance();
-        const project = editor.project.getActiveOrNull();
-        if (!project) return;
+        const mediaAssets = editor.media.getAssets();
 
-        // Find the first video media asset
-        const scene = project.scenes[0];
-        if (!scene) return;
+        // Find the first video asset with a file
+        const videoAsset = mediaAssets.find(
+            (asset) => asset.type === "video" && asset.file,
+        );
 
-        for (const track of scene.tracks) {
-            if (track.type !== "video") continue;
-            for (const element of track.elements) {
-                if (element.type === "video") {
-                    // Use the mediaId to find a usable path
-                    // For local dev, we use the media asset's file path
-                    startDetection(element.mediaId);
-                    return;
-                }
-            }
+        if (!videoAsset?.file) {
+            return;
         }
+
+        startDetection(videoAsset.file);
     }, [startDetection]);
 
     const handleJumpTo = useCallback((time: number) => {

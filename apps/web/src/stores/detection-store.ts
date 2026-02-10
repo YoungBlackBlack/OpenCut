@@ -36,10 +36,10 @@ interface DetectionStore {
     taskId: string | null;
     violations: Violation[];
     error: string | null;
-    videoPath: string | null; // server-side path of the video being detected
+    videoFile: File | null; // browser File being detected
 
     // Actions
-    startDetection: (videoPath: string) => Promise<void>;
+    startDetection: (file: File) => Promise<void>;
     pollStatus: (taskId: string) => Promise<void>;
     clearDetections: () => void;
     setViolations: (violations: Violation[]) => void;
@@ -53,22 +53,25 @@ export const useDetectionStore = create<DetectionStore>((set, get) => ({
     taskId: null,
     violations: [],
     error: null,
-    videoPath: null,
+    videoFile: null,
 
-    startDetection: async (videoPath: string) => {
+    startDetection: async (file: File) => {
         set({
             status: "detecting",
             progress: 0,
             violations: [],
             error: null,
-            videoPath,
+            videoFile: file,
         });
 
         try {
+            // Upload the video file via FormData
+            const formData = new FormData();
+            formData.append("file", file, file.name);
+
             const res = await fetch("/api/detect", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ inputPath: videoPath }),
+                body: formData,
             });
 
             if (!res.ok) {
@@ -139,7 +142,7 @@ export const useDetectionStore = create<DetectionStore>((set, get) => ({
             taskId: null,
             violations: [],
             error: null,
-            videoPath: null,
+            videoFile: null,
         });
     },
 

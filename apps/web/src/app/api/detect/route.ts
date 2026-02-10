@@ -6,21 +6,72 @@ const BACKEND_URL =
 
 /**
  * POST /api/detect
- * 前端传 { inputPath, taskId?, detector? }
- * 转发到 Python 后端 POST /detect
+ *
+ * Accepts either:
+ * 1. JSON body  { inputPath, taskId?, detector? }  — direct path mode
+ * 2. FormData   with field "file" (video)           — upload-first mode
+ *
+ * In upload mode the file is first sent to the Python backend POST /upload,
+ * which saves it to disk and returns { filePath }.
+ * Then POST /detect is called with that filePath as inputPath.
  */
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json();
-        const { inputPath, taskId, detector = "nudenet" } = body;
+        const contentType = request.headers.get("content-type") || "";
 
-        if (!inputPath) {
-            return NextResponse.json(
-                { error: "inputPath is required" },
-                { status: 400 },
-            );
+        let inputPath: string;
+        let taskId: string | undefined;
+        let detector = "nudenet";
+
+        if (contentType.includes("multipart/form-data")) {
+            // ── Upload-first mode ──
+            const formData = await request.formData();
+            const file = formData.get("file") as File | null;
+            taskId = (formData.get("taskId") as string) || undefined;
+            detector = (formData.get("detector") as string) || detector;
+
+            if (!file) {
+                return NextResponse.json(
+                    { error: "file is required in form data" },
+                    { status: 400 },
+                );
+            }
+
+            // Forward file to Python backend /upload
+            const uploadForm = new FormData();
+            uploadForm.append("file", file, file.name);
+
+            const uploadRes = await fetch(`${BACKEND_URL}/upload`, {
+                method: "POST",
+                body: uploadForm,
+            });
+
+            if (!uploadRes.ok) {
+                const err = await uploadRes.text();
+                return NextResponse.json(
+                    { error: `Upload failed: ${err}` },
+                    { status: uploadRes.status },
+                );
+            }
+
+            const uploadData = await uploadRes.json();
+            inputPath = uploadData.filePath;
+        } else {
+            // ── JSON body mode ──
+            const body = await request.json();
+            inputPath = body.inputPath;
+            taskId = body.taskId;
+            detector = body.detector || detector;
+
+            if (!inputPath) {
+                return NextResponse.json(
+                    { error: "inputPath is required" },
+                    { status: 400 },
+                );
+            }
         }
 
+        // ── Call /detect ──
         const payload = {
             taskId: taskId || crypto.randomUUID(),
             inputPath,
